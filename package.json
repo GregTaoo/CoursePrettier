@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
     "antd": "^5.23.3",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",

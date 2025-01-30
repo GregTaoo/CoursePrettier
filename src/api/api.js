@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") ? 'http://localhost:8000' : '/';
 
 export const login = async (user_id, password) => {
   try {
