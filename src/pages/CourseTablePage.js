@@ -200,20 +200,6 @@ const CourseTablePage = () => {
                         />
                     </Space>
                     <Divider type="vertical" />
-                    <Space>
-                        <Typography.Text>Select Semester</Typography.Text>
-                        <Select
-                            disabled={loading}
-                            value={selectedSemesterId}
-                            style={{ width: '200px' }}
-                            onChange={handleSemesterChange}
-                            placeholder="Select Semester"
-                            options={Array.from(semesters).reverse().map(([id, { year, term }]) => ({
-                                label: `${year} - Term ${term}`,
-                                value: id
-                            }))}
-                        />
-                    </Space>
                 </Row>
             </Card>
 
