@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getSemesters, getCourseTable } from '../api/api';
 import { Table, Select, Spin, Alert, Typography, Row, Col, Card, Space, List, Divider } from 'antd';
 import { LoadingOutlined, UserOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons';
@@ -9,9 +10,17 @@ const CourseTablePage = () => {
     const [courseTable, setCourseTable] = useState([]);  // 存储课程表
     const [error, setError] = useState('');  // 错误信息
     const [loading, setLoading] = useState(false);  // 加载状态
+    const navigate = useNavigate();
 
     // 获取学期数据
     useEffect(() => {
+        const loginSession = document.cookie.split(';').some(cookie => cookie.trim().startsWith('LOGIN_SESSION='));
+        const studentId = document.cookie.split(';').some(cookie => cookie.trim().startsWith('STUDENT_ID='));
+
+        if (!loginSession || !studentId) {
+            navigate('/');
+        }
+
         const fetchSemesters = async () => {
             setLoading(true);
             try {
@@ -32,14 +41,14 @@ const CourseTablePage = () => {
                     await handleSemesterChange(defaultSemester);
                 }
             } catch (err) {
-                setError('Failed to fetch semesters');
+                setError('获取学期数据失败');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchSemesters();
-    }, []);
+    }, [navigate]);
 
     // 处理学期选择
     const handleSemesterChange = async (id) => {
@@ -52,7 +61,7 @@ const CourseTablePage = () => {
             setError(null);
         } catch (err) {
             console.error(err);
-            setError('Failed to fetch courses');
+            setError('获取课程表失败');
         } finally {
             setLoading(false);
         }
@@ -62,7 +71,7 @@ const CourseTablePage = () => {
         if (!courseTable[index]) return {};
         if (courseTable[index][col] === '') {
             return { rowSpan: 1 };
-        } else if (index > 0 && courseTable[index][col].key == courseTable[index - 1][col].key) 
+        } else if (index > 0 && courseTable[index][col].key == courseTable[index - 1][col].key)
             return { rowSpan: 0 };
         else {
             let p = index + 1;
@@ -80,13 +89,13 @@ const CourseTablePage = () => {
                     itemLayout="horizontal"
                     dataSource={record[col].weeks}
                     renderItem={(week) => (
-                    <List.Item>
-                        <Col>
-                            <Row><Space><CalendarOutlined/>Week: {week.minWeek === week.maxWeek ? week.minWeek : `${week.minWeek}-${week.maxWeek}`}</Space></Row>
-                            <Row><Space><HomeOutlined/>{week.classroom}</Space></Row>
-                            <Row><Space><UserOutlined/>{week.teachers}</Space></Row>
-                        </Col>
-                    </List.Item>
+                        <List.Item>
+                            <Col>
+                                <Row><Space><CalendarOutlined /><Typography.Text>第{week.minWeek === week.maxWeek ? week.minWeek : `${week.minWeek}~${week.maxWeek}`}周</Typography.Text></Space></Row>
+                                <Row><Space><HomeOutlined />{week.classroom}</Space></Row>
+                                <Row><Space><UserOutlined />{week.teachers}</Space></Row>
+                            </Col>
+                        </List.Item>
                     )}
                 />
             </>
@@ -95,14 +104,14 @@ const CourseTablePage = () => {
 
     // 设置表格的列
     const columns = [
-        { title: 'Time', dataIndex: 'time', key: 'time', width: 90 },
-        { title: 'Monday', dataIndex: '1', key: '1', onCell: (record, index) => onColCell(1, record, index), render: (_, record) => onRender(1, record) },
-        { title: 'Tuesday', dataIndex: '2', key: '2', onCell: (record, index) => onColCell(2, record, index), render: (_, record) => onRender(2, record) },
-        { title: 'Wednesday', dataIndex: '3', key: '3', onCell: (record, index) => onColCell(3, record, index), render: (_, record) => onRender(3, record) },
-        { title: 'Thursday', dataIndex: '4', key: '4', onCell: (record, index) => onColCell(4, record, index), render: (_, record) => onRender(4, record) },
-        { title: 'Friday', dataIndex: '5', key: '5', onCell: (record, index) => onColCell(5, record, index), render: (_, record) => onRender(5, record) },
-        { title: 'Saturday', dataIndex: '6', key: '6', onCell: (record, index) => onColCell(6, record, index), render: (_, record) => onRender(6, record) },
-        { title: 'Sunday', dataIndex: '7', key: '7', onCell: (record, index) => onColCell(7, record, index), render: (_, record) => onRender(7, record) },
+        { title: '时间', dataIndex: 'time', key: 'time', width: 90 },
+        { title: '周一', dataIndex: '1', key: '1', onCell: (record, index) => onColCell(1, record, index), render: (_, record) => onRender(1, record) },
+        { title: '周二', dataIndex: '2', key: '2', onCell: (record, index) => onColCell(2, record, index), render: (_, record) => onRender(2, record) },
+        { title: '周三', dataIndex: '3', key: '3', onCell: (record, index) => onColCell(3, record, index), render: (_, record) => onRender(3, record) },
+        { title: '周四', dataIndex: '4', key: '4', onCell: (record, index) => onColCell(4, record, index), render: (_, record) => onRender(4, record) },
+        { title: '周五', dataIndex: '5', key: '5', onCell: (record, index) => onColCell(5, record, index), render: (_, record) => onRender(5, record) },
+        { title: '周六', dataIndex: '6', key: '6', onCell: (record, index) => onColCell(6, record, index), render: (_, record) => onRender(6, record) },
+        { title: '周日', dataIndex: '7', key: '7', onCell: (record, index) => onColCell(7, record, index), render: (_, record) => onRender(7, record) },
     ];
 
     // 转换课程数据为时间表格式
@@ -117,7 +126,7 @@ const CourseTablePage = () => {
             const timeSlot = {
                 time: (
                     <>
-                        <Col>No.{i}</Col>
+                        <Col>第 {i} 节</Col>
                         <Col>{periodsData[i - 1][i - 1]}</Col>
                     </>
                 ),
@@ -177,24 +186,20 @@ const CourseTablePage = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <Typography.Title level={2} style={{ marginBottom: '20px' }}>
-                Course Table
-            </Typography.Title>
-
             {error && <Alert message={error} type="error" showIcon style={{ marginBottom: '20px' }} />}
 
             <Card style={{ marginBottom: '20px' }}>
                 <Row align="middle">
                     <Space>
-                        <Typography.Text>Select Semester</Typography.Text>
+                        <Typography.Text>选择学期</Typography.Text>
                         <Select
                             disabled={loading}
                             value={selectedSemesterId}
-                            style={{ width: '200px' }}
+                            style={{ width: '250px' }}
                             onChange={handleSemesterChange}
-                            placeholder="Select Semester"
+                            placeholder="选择学期"
                             options={Array.from(semesters).reverse().map(([id, { year, term }]) => ({
-                                label: `${year} - Term ${term}`,
+                                label: `${year} 学年, 第 ${term} 学期`,
                                 value: id
                             }))}
                         />
