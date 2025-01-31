@@ -41,12 +41,12 @@ class Credential:
         else:
             cookie_jar = CookieJar(loop=asyncio.get_event_loop())
             cookie_jar._cookies = pickle.loads(cookie_jar_bytes)
-        resolver = AsyncResolver(nameservers=NAMESERVERS)
-        connector = TCPConnector(resolver=resolver)
+        # resolver = AsyncResolver(nameservers=NAMESERVERS)
+        # connector = TCPConnector(resolver=resolver)
         self.session: ClientSession = aiohttp.ClientSession(
             headers={ 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"},
             cookie_jar=cookie_jar,
-            connector=connector
+            # connector=connector
         )
 
     async def __aenter__(self):
