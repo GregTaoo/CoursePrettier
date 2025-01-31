@@ -59,7 +59,7 @@ END:VEVENT\n`;
         icsData += `END:VCALENDAR`;
         const blob = new Blob([icsData], { type: "text/calendar" });
         const url = URL.createObjectURL(blob);
-        setDataUrl(url);
+        setDataUrl(url.split('blob:')[1]);
         const a = document.createElement("a");
         a.href = url;
         a.download = "course_table.ics";

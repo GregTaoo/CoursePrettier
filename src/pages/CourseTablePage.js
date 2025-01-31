@@ -237,13 +237,13 @@ const CourseTablePage = () => {
                         </Space>
                     </Col>
                     <Col span={4}>
-                        <Button type="primary" onClick={() => setModalOpen(true)}>
-                            导出 iCal 日程
-                        </Button>
-                        <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} />
-                    </Col>
-                    <Col span={4}>
-                        <Button danger onClick={handleLogout} autoInsertSpace={false}>登出</Button>
+                        <Space>
+                            <Button type="primary" onClick={() => setModalOpen(true)}>
+                                导出 iCal 日程
+                            </Button>
+                            <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} />
+                            <Button danger onClick={handleLogout} autoInsertSpace={false}>登出</Button>
+                        </Space>
                     </Col>
                 </Row>
             </Card>
