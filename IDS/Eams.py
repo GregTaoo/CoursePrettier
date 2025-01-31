@@ -7,6 +7,7 @@ from IDS.Credential import Credential
 from IDS.Exception import SessionExpiredError
 
 URL = 'https://eams.shanghaitech.edu.cn/eams/'
+EGATE_URL = 'https://egate.shanghaitech.edu.cn/publicapp/sys/mykbxt/api/'
 
 class Eams:
     """
@@ -120,6 +121,18 @@ class Eams:
             'periods': periods,
             'courses': courses
         }
+
+    async def get_term_begin(self, year: str, semester: str) -> str:
+        # text = (await self.get(f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year_start}-{year_start + 1}-{semester}"))
+        try:
+            async with self.session.get(EGATE_URL + f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year}-{int(semester) + 1}") as response:
+                if response.content_type != 'application/json':
+                    raise SessionExpiredError()
+                data = await response.json()
+                return data['termBegin']
+        except Exception as e:
+            raise e
+        
 
 # class CourseCalender:
 #     def __init__(self, emas: Eams):

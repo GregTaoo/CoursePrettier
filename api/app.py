@@ -20,6 +20,10 @@ class CourseTableParams(BaseModel):
     table_id: Union[str, int] = None
     start_week: Union[int] = None
 
+class StartDateParams(BaseModel):
+    year: str
+    semester: Union[str, int] = 1
+
 app = FastAPI()
 
 origins = [
@@ -123,6 +127,19 @@ async def course_table(params: CourseTableParams, request: Request):
                 return return_message(False, 'Please login first')
             eams = Eams(cred)
             return return_message(True, await eams.get_course_table(params.semester_id, params.table_id, params.start_week))
+    except SessionExpiredError:
+        return return_message(False, 'Session expired')
+    except Exception as e:
+        return return_message(False, str(e))
+
+@app.post("/api/term_begin")
+async def term_begin(params: StartDateParams, request: Request):
+    try:
+        async with get_credential(request) as cred:
+            if cred is None:
+                return return_message(False, 'Please login first')
+            eams = Eams(cred)
+            return return_message(True, await eams.get_term_begin(params.year, params.semester))
     except SessionExpiredError:
         return return_message(False, 'Session expired')
     except Exception as e:

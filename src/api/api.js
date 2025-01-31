@@ -45,3 +45,14 @@ export const getCourseTable = async (semester_id) => {
     throw new Error('Failed to fetch course table');
   }
 };
+
+export const getTermBegin = async (year, semester) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/api/term_begin`, { year, semester }, {
+        withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch term begin date');
+  }
+}
