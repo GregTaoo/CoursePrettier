@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Modal, Button, DatePicker, Space, QRCode } from "antd";
+import { Modal, Button, DatePicker, Space } from "antd";
 
 export default function ICSGenerator({ externalOpen, setExternalOpen, courseData }) {
     const [selectedDate, setSelectedDate] = useState(null);
-    const [dataUrl, setDataUrl] = useState('');
 
     const parseTimeFormat = (time) => {
         let [hour, minute] = time.split(':');
@@ -30,7 +29,6 @@ X-WR-TIMEZONE:Asia/Shanghai
                 end: time.split('-')[1]
             };
         });
-        console.log(periodsData)
         courseData['courses'].forEach(course => {
             for (let i = 1; i <= 18; i++) {
                 if (course['weeks'][i] === '1') {
@@ -59,7 +57,6 @@ END:VEVENT\n`;
         icsData += `END:VCALENDAR`;
         const blob = new Blob([icsData], { type: "text/calendar" });
         const url = URL.createObjectURL(blob);
-        setDataUrl(url.split('blob:')[1]);
         const a = document.createElement("a");
         a.href = url;
         a.download = "course_table.ics";
@@ -98,7 +95,6 @@ END:VEVENT\n`;
                     生成 iCal 日程
                 </Button>
             </Space>
-            {dataUrl === '' ? '' : <QRCode value={dataUrl || '-'} />}
         </Modal>
     );
 }
