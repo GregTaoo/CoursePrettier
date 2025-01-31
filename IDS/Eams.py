@@ -122,10 +122,10 @@ class Eams:
             'courses': courses
         }
 
-    async def get_term_begin(self, year_start: str, semester: str) -> str:
+    async def get_term_begin(self, year: str, semester: str) -> str:
         # text = (await self.get(f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year_start}-{year_start + 1}-{semester}"))
         try:
-            async with self.session.get(EGATE_URL + f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year_start}-{year_start + 1}-{semester}") as response:
+            async with self.session.get(EGATE_URL + f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year}-{int(semester) + 1}") as response:
                 if response.content_type != 'application/json':
                     raise SessionExpiredError()
                 data = await response.json()

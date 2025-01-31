@@ -13,6 +13,8 @@ const CourseTablePage = () => {
     const [error, setError] = useState('');  // 错误信息
     const [loading, setLoading] = useState(false);  // 加载状态
     const [modalOpen, setModalOpen] = useState(false);
+    const [currentYear, setCurrentYear] = useState(null); // 当前学年
+    const [currentSemester, setCurrentSemester] = useState(null); // 当前学期
     const navigate = useNavigate();
 
     // 获取学期数据
@@ -74,6 +76,8 @@ const CourseTablePage = () => {
 
     // 处理学期选择
     const handleSemesterChange = async (id) => {
+        // get year and term
+        // Array.from(semesters).reverse().filter(([id, _]) => id === selectedSemesterId).at(0).at(1);
         setSelectedSemesterId(id);
         setLoading(true);
         setError(null);
@@ -96,6 +100,19 @@ const CourseTablePage = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        try {
+            const { year, term } = Array
+                .from(semesters)
+                .reverse()
+                .filter(([semesterId, _]) => semesterId === selectedSemesterId)
+                .at(0)
+                .at(1);
+            setCurrentYear(year);
+            setCurrentSemester(term);
+        } catch {}
+    }, [selectedSemesterId])
 
     const onColCell = (col, record, index) => {
         if (!courseTable[index]) return {};
@@ -238,10 +255,10 @@ const CourseTablePage = () => {
                     </Col>
                     <Col span={4}>
                         <Space>
-                            <Button type="primary" onClick={() => setModalOpen(true)}>
+                            <Button type="primary" onClick={() => setModalOpen(true)} disabled={loading}>
                                 导出 iCal 日程
                             </Button>
-                            <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} />
+                            <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} year={currentYear} semester={currentSemester} />
                             <Button danger onClick={handleLogout} autoInsertSpace={false}>登出</Button>
                         </Space>
                     </Col>

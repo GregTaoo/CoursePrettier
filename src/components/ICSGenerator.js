@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { Modal, Button, DatePicker, Space } from "antd";
+import { useEffect, useState } from "react";
+import { Modal, Spin, Button, DatePicker, Space } from "antd";
+import { LoadingOutlined } from '@ant-design/icons';
+import { getTermBegin } from "../api/api";
 
-export default function ICSGenerator({ externalOpen, setExternalOpen, courseData }) {
+export default function ICSGenerator({ externalOpen, setExternalOpen, courseData, year, semester }) {
     const [selectedDate, setSelectedDate] = useState(null);
 
     const parseTimeFormat = (time) => {
@@ -11,9 +13,11 @@ export default function ICSGenerator({ externalOpen, setExternalOpen, courseData
         return `${hour}${minute}`;
     }
 
-    const generateIcal = () => {
-        const date = selectedDate;
-        let firstMonday0 = date.toDate().getTime();
+    const generateIcal = async () => {
+        // const date = selectedDate;
+        const dateResp = await getTermBegin(year, semester);
+        const date = new Date(dateResp.message + 'T00:00:00+08:00');
+        let firstMonday0 = date.getTime();
         let icsData = `BEGIN:VCALENDAR
 VERSION:2.0
 X-WR-CALNAME:课表
@@ -63,6 +67,7 @@ END:VEVENT\n`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        setExternalOpen(false);
     }
 
     // 获取选中日期所在周的周一
@@ -82,19 +87,32 @@ END:VEVENT\n`;
         return `${year}${month}${day}`;
     };
 
+    useEffect(() => {
+        if(externalOpen)
+            generateIcal();
+    }, [externalOpen]);
+
     return (
+        // <Modal
+        //     title="选择第一周周一的日期"
+        //     open={externalOpen}
+        //     onCancel={() => setExternalOpen(false)}
+        //     footer={null}
+        // >
+        //     <Space>
+        //         <DatePicker onChange={setSelectedDate} placeholder="选择日期"/>
+        //         <Button type="primary" onClick={generateIcal}>
+        //             生成 iCal 日程
+        //         </Button>
+        //     </Space>
+        // </Modal>
         <Modal
-            title="选择第一周周一的日期"
+            title="正在导出 iCal 日程"
             open={externalOpen}
             onCancel={() => setExternalOpen(false)}
             footer={null}
-        >
-            <Space>
-                <DatePicker onChange={setSelectedDate} placeholder="选择日期"/>
-                <Button type="primary" onClick={generateIcal}>
-                    生成 iCal 日程
-                </Button>
-            </Space>
+         >
+            <Spin indicator={<LoadingOutlined style={{ fontSize: 40 }} spin />} />
         </Modal>
     );
 }
