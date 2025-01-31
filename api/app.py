@@ -86,12 +86,13 @@ async def login(params: LoginParams, response: Response):
 
 @app.post("/api/logout")
 async def logout(request: Request, response: Response):
+    clear_cookies(response)
     try:
         async with get_credential(request) as cred:
-            if cred is not None:
-                cred.close()
-            clear_cookies(response)
+            cred.close()
             return return_message(True)
+    except SessionExpiredError:
+        return return_message(True)
     except Exception as e:
         return return_message(False, str(e))
 
