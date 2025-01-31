@@ -57,14 +57,14 @@ def return_message(success: bool, message=None) -> dict:
         "isSuccess": success
     }
 
-def get_credential(request: Request) -> Optional[Credential]:
+def get_credential(request: Request) -> Credential:
     user_id, cookie_str = get_cookies(request)
     if user_id and cookie_str:
         cred = Credential(user_id, base64.b64decode(cookie_str))
         cred.is_login = True
         return cred
     else:
-        return None
+        raise SessionExpiredError()
 
 @app.post("/api/login")
 async def login(params: LoginParams, response: Response):
