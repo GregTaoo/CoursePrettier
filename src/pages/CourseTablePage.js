@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSemesters, getCourseTable } from '../api/api';
-import { Table, Select, Spin, Alert, Typography, Row, Col, Card, Space, List, Divider } from 'antd';
+import ICSGenerator from '../components/ICSGenerator';
+import { getSemesters, getCourseTable, logout } from '../api/api';
+import { Table, Select, Spin, Alert, Typography, Row, Col, Card, Space, List, Divider, Button } from 'antd';
 import { LoadingOutlined, UserOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons';
 
 const CourseTablePage = () => {
     const [semesters, setSemesters] = useState([]);  // 存储学期列表
     const [selectedSemesterId, setSelectedSemesterId] = useState(null);  // 当前选择的学期ID
+    const [courseData, setCourseData] = useState(null);  // 存储课程数据
     const [courseTable, setCourseTable] = useState([]);  // 存储课程表
     const [error, setError] = useState('');  // 错误信息
     const [loading, setLoading] = useState(false);  // 加载状态
+    const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
 
     // 获取学期数据
@@ -23,6 +26,7 @@ const CourseTablePage = () => {
 
         const fetchSemesters = async () => {
             setLoading(true);
+            setError(null);
             try {
                 const response = await getSemesters();
                 if (response.isSuccess) {
@@ -39,6 +43,11 @@ const CourseTablePage = () => {
                     // 获取默认学期和课程表
                     const defaultSemester = response.message.default_semester;
                     await handleSemesterChange(defaultSemester);
+                } else if (response.message === 'Session expired') {
+                    setError('登录失效，请重新登录');
+                    handleLogout();
+                } else {
+                    setError('获取学期数据失败: ' + response.message);
                 }
             } catch (err) {
                 setError('获取学期数据失败');
@@ -50,15 +59,36 @@ const CourseTablePage = () => {
         fetchSemesters();
     }, [navigate]);
 
+    const handleLogout = async () => {
+        try {
+            const response = await logout();
+            if (response.isSuccess) {
+                navigate('/');
+            } else {
+                setError('登出失败: ' + response.message);
+            }
+        } catch (err) {
+            setError('登出失败');
+        }
+    }
+
     // 处理学期选择
     const handleSemesterChange = async (id) => {
         setSelectedSemesterId(id);
         setLoading(true);
+        setError(null);
 
         try {
             const courses = await getCourseTable(id);
-            setCourseTable(generateTableData(courses.message));
-            setError(null);
+            if (courses.isSuccess) {
+                setCourseData(courses.message);
+                setCourseTable(generateTableData(courses.message));
+            } else if (courses.message === 'Session expired') {
+                setError('登录失效，请重新登录');
+                handleLogout();
+            } else {
+                setError('获取课程表失败: ' + courses.message);
+            }
         } catch (err) {
             console.error(err);
             setError('获取课程表失败');
@@ -189,22 +219,32 @@ const CourseTablePage = () => {
             {error && <Alert message={error} type="error" showIcon style={{ marginBottom: '20px' }} />}
 
             <Card style={{ marginBottom: '20px' }}>
-                <Row align="middle">
-                    <Space>
-                        <Typography.Text>选择学期</Typography.Text>
-                        <Select
-                            disabled={loading}
-                            value={selectedSemesterId}
-                            style={{ width: '250px' }}
-                            onChange={handleSemesterChange}
-                            placeholder="选择学期"
-                            options={Array.from(semesters).reverse().map(([id, { year, term }]) => ({
-                                label: `${year} 学年, 第 ${term} 学期`,
-                                value: id
-                            }))}
-                        />
-                    </Space>
-                    <Divider type="vertical" />
+                <Row align="middle" justify="space-around">
+                    <Col span={12}>
+                        <Space>
+                            <Typography.Text>选择学期</Typography.Text>
+                            <Select
+                                disabled={loading}
+                                value={selectedSemesterId}
+                                style={{ width: '250px' }}
+                                onChange={handleSemesterChange}
+                                placeholder="选择学期"
+                                options={Array.from(semesters).reverse().map(([id, { year, term }]) => ({
+                                    label: `${year} 学年, 第 ${term} 学期`,
+                                    value: id
+                                }))}
+                            />
+                        </Space>
+                    </Col>
+                    <Col span={4}>
+                        <Button type="primary" onClick={() => setModalOpen(true)}>
+                            导出 iCal 日程
+                        </Button>
+                        <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} />
+                    </Col>
+                    <Col span={4}>
+                        <Button danger onClick={handleLogout} autoInsertSpace={false}>登出</Button>
+                    </Col>
                 </Row>
             </Card>
 

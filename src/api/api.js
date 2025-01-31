@@ -15,6 +15,17 @@ export const login = async (user_id, password) => {
   }
 };
 
+export const logout = async () => {
+  try {
+    const response = await axios.post(`${BASE_URL}/api/logout`, {}, {
+        withCredentials: true
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Logout failed');
+  }
+};
+
 export const getSemesters = async () => {
   try {
     const response = await axios.post(`${BASE_URL}/api/semesters`, {}, {

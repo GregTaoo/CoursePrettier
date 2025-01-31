@@ -78,6 +78,7 @@ const LoginPage = () => {
                             style={{ width: '100%' }}
                             loading={loading} // 显示加载动画
                             disabled={loading} // 禁用按钮
+                            autoInsertSpace={false}
                         >
                             提交
                         </Button>
