@@ -8,7 +8,13 @@ import LoginPage from './pages/LoginPage';
 import CourseTablePage from './pages/CourseTablePage';
 
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('dark_mode') === '1');
+
+  const toggleDarkMode = () => {
+    let dark = !isDarkMode;
+    setIsDarkMode(dark);
+    localStorage.setItem('dark_mode', dark ? '1' : '0');
+  };
 
   return (
     <ConfigProvider locale={zhCN} 
@@ -21,7 +27,7 @@ function App() {
           <Route path="/courses" element={<CourseTablePage />} />
         </Routes>
       </Router>
-      <FloatButton onClick={() => setIsDarkMode(!isDarkMode)} icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />} />
+      <FloatButton onClick={toggleDarkMode} icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />} />
     </ConfigProvider>
   );
 }
