@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ICSGenerator from '../components/ICSGenerator';
 import { getSemesters, getCourseTable, logout } from '../api/api';
-import { Table, Select, Spin, Alert, Typography, Row, Col, Card, Space, List, Divider, Button } from 'antd';
+import { Table, Select, Spin, Alert, Typography, Row, Col, Card, Space, List, Layout, Button } from 'antd';
 import { LoadingOutlined, UserOutlined, HomeOutlined, CalendarOutlined } from '@ant-design/icons';
 
 const CourseTablePage = () => {
@@ -232,55 +232,57 @@ const CourseTablePage = () => {
     };
 
     return (
-        <div style={{ padding: '20px' }}>
-            {error && <Alert message={error} type="error" showIcon style={{ marginBottom: '20px' }} />}
+        <Layout style={{ minHeight: '100vh' }}>
+            <div style={{ padding: '20px' }}>
+                {error && <Alert message={error} type="error" showIcon style={{ marginBottom: '20px' }} />}
 
-            <Card style={{ marginBottom: '20px' }}>
-                <Row align="middle" justify="space-around">
-                    <Col span={12}>
-                        <Space>
-                            <Typography.Text>选择学期</Typography.Text>
-                            <Select
-                                disabled={loading}
-                                value={selectedSemesterId}
-                                style={{ width: '250px' }}
-                                onChange={handleSemesterChange}
-                                placeholder="选择学期"
-                                options={Array.from(semesters).reverse().map(([id, { year, term }]) => ({
-                                    label: `${year} 学年, 第 ${term} 学期`,
-                                    value: id
-                                }))}
-                            />
-                        </Space>
-                    </Col>
-                    <Col span={4}>
-                        <Space>
-                            <Button type="primary" onClick={() => setModalOpen(true)} disabled={loading}>
-                                导出 iCal 日程
-                            </Button>
-                            <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} year={currentYear} semester={currentSemester} />
-                            <Button danger onClick={handleLogout} autoInsertSpace={false}>登出</Button>
-                        </Space>
-                    </Col>
-                </Row>
-            </Card>
+                <Card style={{ marginBottom: '20px' }}>
+                    <Row align="middle" justify="space-around">
+                        <Col span={12}>
+                            <Space>
+                                <Typography.Text>选择学期</Typography.Text>
+                                <Select
+                                    disabled={loading}
+                                    value={selectedSemesterId}
+                                    style={{ width: '250px' }}
+                                    onChange={handleSemesterChange}
+                                    placeholder="选择学期"
+                                    options={Array.from(semesters).reverse().map(([id, { year, term }]) => ({
+                                        label: `${year} 学年, 第 ${term} 学期`,
+                                        value: id
+                                    }))}
+                                />
+                            </Space>
+                        </Col>
+                        <Col span={4}>
+                            <Space>
+                                <Button type="primary" onClick={() => setModalOpen(true)} disabled={loading}>
+                                    导出 iCal 日程
+                                </Button>
+                                <ICSGenerator externalOpen={modalOpen} setExternalOpen={setModalOpen} courseData={courseData} year={currentYear} semester={currentSemester} />
+                                <Button danger onClick={handleLogout} autoInsertSpace={false}>登出</Button>
+                            </Space>
+                        </Col>
+                    </Row>
+                </Card>
 
-            {loading ? (
-                <div style={{ textAlign: 'center', marginTop: '40px' }}>
-                    <Spin indicator={<LoadingOutlined style={{ fontSize: 40 }} spin />} />
-                </div>
-            ) : (
-                <Table
-                    columns={columns}
-                    dataSource={courseTable}
-                    pagination={false}
-                    rowKey="time"
-                    bordered
-                    size="middle"
-                    style={{ marginTop: '20px' }}
-                />
-            )}
-        </div>
+                {loading ? (
+                    <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 40 }} spin />} />
+                    </div>
+                ) : (
+                    <Table
+                        columns={columns}
+                        dataSource={courseTable}
+                        pagination={false}
+                        rowKey="time"
+                        bordered
+                        size="middle"
+                        style={{ marginTop: '20px' }}
+                    />
+                )}
+            </div>
+        </Layout>
     );
 };
 
