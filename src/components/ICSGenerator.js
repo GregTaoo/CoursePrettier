@@ -4,7 +4,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { getTermBegin } from "../api/api";
 
 export default function ICSGenerator({ externalOpen, setExternalOpen, courseData, year, semester }) {
-    const [selectedDate, setSelectedDate] = useState(null);
+    // const [selectedDate, setSelectedDate] = useState(null);
 
     const parseTimeFormat = (time) => {
         let [hour, minute] = time.split(':');
@@ -17,6 +17,10 @@ export default function ICSGenerator({ externalOpen, setExternalOpen, courseData
         // const date = selectedDate;
         const dateResp = await getTermBegin(year, semester);
         const date = new Date(dateResp.message + 'T00:00:00+08:00');
+        const dayOfWeek = date.getDay();
+        // 如果当天是星期日（dayOfWeek === 0），则需要往前调整6天；否则调整 (dayOfWeek - 1) 天
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        date.setDate(date.getDate() + diff);
         let firstMonday0 = date.getTime();
         let icsData = `BEGIN:VCALENDAR
 VERSION:2.0
