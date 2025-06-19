@@ -45,14 +45,13 @@ class Eams:
     def find_table_id(soup: BeautifulSoup) -> str:
         script_tags = soup.find_all('script')
         for tag in script_tags:
-            match = re.search("bg.form.addInput\(form,\"ids\",\"\d+\"\)", tag.text)
+            match = re.search(r'bg.form.addInput\(form,"ids","\d+"\)', tag.text)
             if match:
                 return match.group(0).split('"')[-2]
         raise ValueError("Cannot find table id")
 
     async def get_semesters(self) -> tuple[dict, str, str]:
         text = (await self.get("courseTableForStd.action")).decode("utf-8")
-        print(text)
         if text.find('统一身份认证') > 0:
             raise SessionExpiredError()
         mystery_id = text.split('"></div>')[0][-11:]
@@ -93,7 +92,7 @@ class Eams:
             })
         courses = []
         for course_str in course_strs[1:]:
-            match0 = re.findall(r'\),"[0-9A-Za-z().]+","(.*?\([0-9A-Za-z().]+\))","[\d,]+","(.*?)","([01]+)",', course_str)
+            match0 = re.findall(r'\),"[0-9A-Za-z().]+","(.*?\([0-9A-Za-z().]+\))","[\d,-]+","(.*?)","([01]+)",', course_str)
             match1 = re.findall(r'index =(\d+)\*unitCount\+(\d+);', course_str)
             match2 = re.search(r'var actTeachers = \[(.*?)];', course_str, re.DOTALL)
             teachers = ''
@@ -124,14 +123,11 @@ class Eams:
 
     async def get_term_begin(self, year: str, semester: str) -> str:
         # text = (await self.get(f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year_start}-{year_start + 1}-{semester}"))
-        try:
-            async with self.session.get(EGATE_URL + f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year}-{int(semester) + 1}") as response:
-                if response.content_type != 'application/json':
-                    raise SessionExpiredError()
-                data = await response.json()
-                return data['termBegin']
-        except Exception as e:
-            raise e
+        async with self.session.get(EGATE_URL + f"getSchoolCalendar.do?termJump=prev&schoolYearTerm={year}-{int(semester) + 1}") as response:
+            if response.content_type != 'application/json':
+                raise SessionExpiredError()
+            data = await response.json()
+            return data['termBegin']
         
 
 # class CourseCalender:

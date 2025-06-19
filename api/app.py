@@ -1,6 +1,7 @@
 import base64
 import pickle
-from typing import Tuple, Optional, Union
+import traceback
+from typing import Tuple, Union
 
 from fastapi import FastAPI, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -85,7 +86,9 @@ async def login(params: LoginParams, response: Response):
             if cred.is_login:
                 set_cookies(response, cred, user_id)
                 return return_message(True)
+            return None
     except Exception as e:
+        traceback.print_exc()
         return return_message(False, str(e))
 
 @app.post("/api/logout")
@@ -99,6 +102,7 @@ async def logout(request: Request, response: Response):
         clear_cookies(response)
         return return_message(True)
     except Exception as e:
+        traceback.print_exc()
         return return_message(False, str(e))
 
 @app.post("/api/semesters")
@@ -117,6 +121,7 @@ async def semesters(request: Request):
     except SessionExpiredError:
         return return_message(False, 'Session expired')
     except Exception as e:
+        traceback.print_exc()
         return return_message(False, str(e))
 
 @app.post("/api/course_table")
@@ -130,6 +135,7 @@ async def course_table(params: CourseTableParams, request: Request):
     except SessionExpiredError:
         return return_message(False, 'Session expired')
     except Exception as e:
+        traceback.print_exc()
         return return_message(False, str(e))
 
 @app.post("/api/term_begin")
@@ -143,6 +149,7 @@ async def term_begin(params: StartDateParams, request: Request):
     except SessionExpiredError:
         return return_message(False, 'Session expired')
     except Exception as e:
+        traceback.print_exc()
         return return_message(False, str(e))
 
 # @app.post("/api/login")
