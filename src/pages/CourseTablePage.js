@@ -191,33 +191,38 @@ const CourseTablePage = () => {
 
         data['courses'].forEach(course => {
             const { weeks, times, name, teachers, classroom } = course;
-            let minWeek = 0, maxWeek = 0;
-            while (weeks[++maxWeek] === '0' && maxWeek <= 18);
-            minWeek = maxWeek;
-            while (weeks[++maxWeek] === '1' && maxWeek <= 18);
-            maxWeek--;
-            Object.entries(times).forEach(([day, periods]) => {
-                periods.split(',').forEach((period) => {
-                    if (!courseTable[period - 1][day]) {
-                        courseTable[period - 1][day] = {
-                            key: name + classroom + teachers + period + day,
-                            name: name,
-                            weeks: [{
-                                minWeek: minWeek,
-                                maxWeek: maxWeek,
+
+            const segments = [];
+            for (const match of weeks.matchAll(/1+/g)) {
+                const start = match.index;
+                const end = start + match[0].length - 1;
+                segments.push({ start, end });
+            }
+
+            segments.forEach(({ start, end }) => {
+                Object.entries(times).forEach(([day, periods]) => {
+                    periods.split(',').forEach((period) => {
+                        if (!courseTable[period - 1][day]) {
+                            courseTable[period - 1][day] = {
+                                key: name + classroom + teachers + period + day,
+                                name: name,
+                                weeks: [{
+                                    minWeek: start,
+                                    maxWeek: end,
+                                    classroom: classroom,
+                                    teachers: teachers
+                                }]
+                            }
+                        } else {
+                            courseTable[period - 1][day].weeks.push({
+                                minWeek: start,
+                                maxWeek: end,
                                 classroom: classroom,
                                 teachers: teachers
-                            }]
+                            })
                         }
-                    } else {
-                        courseTable[period - 1][day].weeks.push({
-                            minWeek: minWeek,
-                            maxWeek: maxWeek,
-                            classroom: classroom,
-                            teachers: teachers
-                        })
-                    }
-                })
+                    })
+                });
             });
         });
 
