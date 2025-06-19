@@ -118,18 +118,18 @@ const CourseTablePage = () => {
         if (!courseTable[index]) return {};
         if (courseTable[index][col] === '') {
             return { rowSpan: 1 };
-        } else if (index > 0 && courseTable[index][col].key == courseTable[index - 1][col].key)
+        } else if (index > 0 && courseTable[index][col].key === courseTable[index - 1][col].key)
             return { rowSpan: 0 };
         else {
             let p = index + 1;
-            while (p < courseTable.length && courseTable[p][col].key == courseTable[index][col].key)
+            while (p < courseTable.length && courseTable[p][col].key === courseTable[index][col].key)
                 p++;
             return { rowSpan: p - index };
         }
     }
 
     const onRender = (col, record) => {
-        return record[col] != '' ? (
+        return record[col] !== '' ? (
             <>
                 <Row><Typography.Text strong>{record[col].name}</Typography.Text></Row>
                 <List
@@ -171,6 +171,7 @@ const CourseTablePage = () => {
 
         for (let i = 1; i <= periodsData.length; i++) {
             const timeSlot = {
+                key: i,
                 time: (
                     <>
                         <Col>第 {i} 节</Col>
@@ -199,7 +200,7 @@ const CourseTablePage = () => {
                 periods.split(',').forEach((period) => {
                     if (!courseTable[period - 1][day]) {
                         courseTable[period - 1][day] = {
-                            key: name + classroom + teachers,
+                            key: name + classroom + teachers + period + day,
                             name: name,
                             weeks: [{
                                 minWeek: minWeek,
@@ -275,7 +276,6 @@ const CourseTablePage = () => {
                         columns={columns}
                         dataSource={courseTable}
                         pagination={false}
-                        rowKey="time"
                         bordered
                         size="middle"
                         style={{ marginTop: '20px' }}
