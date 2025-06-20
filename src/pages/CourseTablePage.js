@@ -215,7 +215,7 @@ const CourseTablePage = () => {
                     periods.split(',').forEach((period) => {
                         if (!courseTable[period - 1][day]) {
                             courseTable[period - 1][day] = {
-                                key: name + classroom + teachers + period + day,
+                                key: name + classroom + teachers + day,
                                 name: name,
                                 weeks: [{
                                     minWeek: start,
