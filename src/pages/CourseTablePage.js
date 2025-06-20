@@ -129,9 +129,20 @@ const CourseTablePage = () => {
     }
 
     const onRender = (col, record) => {
+        const originalName = record[col].name;
+
+        const match = originalName ? originalName.match(/(.*)\(([\w.]+)\)/) : null;
+        const name = match ? match[1].trim() : originalName;
+        const code = match ? match[2].trim() : null;
+
         return record[col] !== '' ? (
             <>
-                <Row><Typography.Text strong>{record[col].name}</Typography.Text></Row>
+                <Row>
+                    <Space direction="horizontal">
+                    <Typography.Text strong>{name}</Typography.Text>
+                    {code && <Typography.Text type="secondary">{code}</Typography.Text>}
+                    </Space>
+                </Row>
                 <List
                     itemLayout="horizontal"
                     dataSource={record[col].weeks}
